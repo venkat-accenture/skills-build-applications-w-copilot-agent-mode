@@ -28,18 +28,26 @@ router.register(r'activities', ActivityViewSet)
 router.register(r'leaderboard', LeaderboardViewSet)
 router.register(r'workouts', WorkoutViewSet)
 
+
 @api_view(['GET'])
 def api_root(request, format=None):
+    import os
+    codespace_name = os.environ.get('CODESPACE_NAME')
+    if codespace_name:
+        base_url = f"https://{codespace_name}-8000.app.github.dev/api/"
+    else:
+        base_url = "http://localhost:8000/api/"
+    # For curl testing on Codespaces, use -k to ignore certificate issues: curl -k https://$CODESPACE_NAME-8000.app.github.dev/api/
     return Response({
-        'users': request.build_absolute_uri('api/users/'),
-        'teams': request.build_absolute_uri('api/teams/'),
-        'activities': request.build_absolute_uri('api/activities/'),
-        'leaderboard': request.build_absolute_uri('api/leaderboard/'),
-        'workouts': request.build_absolute_uri('api/workouts/'),
+        'users': f"{base_url}users/",
+        'teams': f"{base_url}teams/",
+        'activities': f"{base_url}activities/",
+        'leaderboard': f"{base_url}leaderboard/",
+        'workouts': f"{base_url}workouts/",
     })
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', api_root, name='api_root'),
+    path('api/', api_root, name='api_root'),
     path('api/', include(router.urls)),
 ]
